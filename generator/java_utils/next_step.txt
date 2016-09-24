@@ -1,0 +1,7 @@
+Extract all classes with jar tvf jsbml-1.1-with-dependencies.jar
+
+
+Then parse data and convert to json
+
+
+only if sbml/jsbml in line
