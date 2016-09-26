@@ -5,3 +5,12 @@ Then parse data and convert to json
 
 
 only if sbml/jsbml in line
+
+
+or this
+
+java -cp jsbml-1.1-with-dependencies.jar <Tab>
+
+
+
+so jar or java

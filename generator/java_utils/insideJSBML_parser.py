@@ -200,18 +200,83 @@ def parse_output(output):
     return final_data  # output_data
 
 
-def get_class_information(class_name=None, individual_run=False, extract_data=False):
-    if class_name == 'AbstractSBasePlugin':
-        # class_name = 'org.sbml.jsbml.ext.{0}'.format(class_name)
-        return
-    else:
-        class_name = 'org.sbml.jsbml.{0}'.format(class_name)
+def parse_jar_output(jar_output):
+    output_data = []
+    for line in jar_output:
+        # print(line)
+        data_stage1 = line.split(' ')
+        # print(data_stage1)
+        # print(data_stage1[-1])
+
+        data_stage2 = data_stage1[-1].split('/')
+
+        temp_class = ''
+        if 'sbml' in data_stage2 and 'jsbml' in data_stage2:
+            if 'ext' not in data_stage2 and 'test' not in data_stage2:
+                if 'parsers' not in data_stage2:
+                    if 'compiler' not in data_stage2:
+                        if 'class' in data_stage2[-1]:
+                            data_stage2[-1] = data_stage2[-1].split('.')[0]
+                            # print(data_stage2)
+                            for i in data_stage2:
+                                temp_class += i + '.'
+                            output_data.append(temp_class[:-1])
+
+    # Extract all jsbml class names
+    return output_data  # output_data
+
+def extract_jsbml_class_names_from_jar():
+    comm1 = 'jar'
+    comm2 = 'tvf'
+    comm3 = '{0}{1}{2}'.format(file_path, os.sep, jsbml_jar)
+    total_command = [comm1, comm2, comm3]
+    print(total_command)
+
+    try:
+        class_info = sub.Popen(total_command, stdout=sub.PIPE, stderr=sub.PIPE)
+        stdout, stderr = class_info.communicate()
+
+        if stdout:
+            # For debugging purposes
+            # print(stdout)
+            stdout_value = stdout.decode()  # decode("utf-8")
+            class_output = stdout_value.split('\n')
+            # print(class_output)
+            class_data = parse_jar_output(class_output)
+            print(class_data)
+            return class_data
+        elif stderr:
+            error_txt = stderr.decode()
+            # print('ERROR is', error_txt)
+            if 'Error: class not found:' in error_txt:
+                return
+            else:
+                if extract_data is False:
+                    print('Check if Java SDK is installed, deviser requires javap')
+                    sys.exit(0)
+                else:
+                    return
+    except Exception as error:
+        if extract_data is False:
+            print('Error is ', error)
+            print('Check if Java SDK is installed, deviser requires javap')
+            sys.exit(0)
+
+
+def get_class_information_jar(class_name=None, individual_run=False, extract_data=False):
+    # if class_name == 'AbstractSBasePlugin':
+    #     # class_name = 'org.sbml.jsbml.ext.{0}'.format(class_name)
+    #     return
+    # else:
+    #     class_name = 'org.sbml.jsbml.{0}'.format(class_name)
 
     # Old version
     # command = 'javap -cp {0}{1}{2} -package {3}'.format(file_path, os.sep, jsbml_jar, class_name)
 
     # TODO inside JSBML parser debugging test
     # comm1 = 'javap_wrong'
+
+
 
     comm1 = 'javap'
     comm2 = '-cp'
@@ -233,7 +298,60 @@ def get_class_information(class_name=None, individual_run=False, extract_data=Fa
             return dict_data
         elif stderr:
             error_txt = stderr.decode()
-            # print('ERROR is', error_txt)
+            print('ERROR is', error_txt)
+            if 'Error: class not found:' in error_txt:
+                return
+            else:
+                if extract_data is False:
+                    print('Check if Java SDK is installed, deviser requires javap')
+                    sys.exit(0)
+                else:
+                    return
+    except Exception as error:
+        if extract_data is False:
+            print('Error is ', error)
+            print('Check if Java SDK is installed, deviser requires javap')
+            sys.exit(0)
+
+
+
+
+def get_class_information(class_name=None, individual_run=False, extract_data=False):
+    if class_name == 'AbstractSBasePlugin':
+        # class_name = 'org.sbml.jsbml.ext.{0}'.format(class_name)
+        return
+    else:
+        class_name = 'org.sbml.jsbml.{0}'.format(class_name)
+
+    # Old version
+    # command = 'javap -cp {0}{1}{2} -package {3}'.format(file_path, os.sep, jsbml_jar, class_name)
+
+    # TODO inside JSBML parser debugging test
+    # comm1 = 'javap_wrong'
+
+
+
+    comm1 = 'javap'
+    comm2 = '-cp'
+    comm3 = '{0}{1}{2}'.format(file_path, os.sep, jsbml_jar)
+    comm4 = '-package'
+    comm5 = '{0}'.format(class_name)
+    total_command = [comm1, comm2, comm3, comm4, comm5]
+
+    try:
+        class_info = sub.Popen(total_command, stdout=sub.PIPE, stderr=sub.PIPE)
+        stdout, stderr = class_info.communicate()
+
+        if stdout:
+            # For debugging purposes
+            # print(stdout)
+            stdout_value = stdout.decode()  # decode("utf-8")
+            class_output = stdout_value.split('\n')
+            dict_data = parse_output(class_output)
+            return dict_data
+        elif stderr:
+            error_txt = stderr.decode()
+            print('ERROR is', error_txt)
             if 'Error: class not found:' in error_txt:
                 return
             else:

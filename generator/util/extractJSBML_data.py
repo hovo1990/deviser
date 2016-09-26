@@ -52,6 +52,9 @@ jsbml_data = jsbml_data_tree.jsbml_data_tree
 file_path = os.path.dirname(os.path.abspath(__file__)) + '/../java_utils/'
 
 
+
+
+
 # print(jsbml_data)
 
 def save_JSBML_data_to_pickle():
@@ -90,6 +93,23 @@ def save_JSBML_data_to_json():
     pickle '''
     # Run twice : python2 and python3
     jsbml_parsed_data = {}
+
+    # a New prototype for extracting all names
+    jsbml_class_names = insideJSBML_parser.extract_jsbml_class_names_from_jar()
+
+    # new version where extract class data from jar classes
+    # insideJSBML_parser.get_class_information(module) to get module info
+    # There are some bugs afterwards
+    # for module in jsbml_class_names:
+    #     # print(module)
+    #     data = insideJSBML_parser.get_class_information_jar(module, extract_data=True)
+    #     # print(data)
+    #     if data is not None:
+    #         jsbml_parsed_data.update({module: data})
+
+
+
+    # old version where extract data from jsbml data tree
     # insideJSBML_parser.get_class_information(module) to get module info
     for module in jsbml_data:
         # print(module)
@@ -98,14 +118,7 @@ def save_JSBML_data_to_json():
         if data is not None:
             jsbml_parsed_data.update({module: data})
 
-    # print(jsbml_parsed_data)
-    # just 400 kB can solve javap, ok technichally 800kB for py2 and py3 dependency problem
-    # python_version = sys.version_info
-    # print(python_version)
-    # if python_version[0] == 3:
-    #     suffix = 'py3'
-    # elif python_version[0] == 2:
-    #     suffix = 'py2'
+
     file_name = 'jsbml_parsed_data.json'
     json.dump(jsbml_parsed_data, open(file_path + "/{0}".format(file_name), "w"), sort_keys=True, indent=4)
 
